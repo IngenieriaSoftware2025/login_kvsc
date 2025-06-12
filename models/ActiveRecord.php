@@ -247,4 +247,8 @@ class ActiveRecord {
             }
         }
     }
+    public static function getDB(): PDO
+    {
+    return self::$db;
+    }
 }

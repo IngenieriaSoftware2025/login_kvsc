@@ -24,7 +24,27 @@
                 
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0" style="margin: 0;">
                     <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="/ejemplo/"><i class="bi bi-house-fill me-2"></i>Inicio</a>
+                        <a class="nav-link" aria-current="page" href="/proyecto01/login"><i class="bi bi-house-fill me-2"></i>Login</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" href="/proyecto01/registro"><i class="bi bi-house-fill me-2"></i>Registro</a>
+                    </li>
+                       <li class="nav-item">
+                        <a class="nav-link px-3" style="background: none;" href="/proyecto01/aplicacion">
+                            <i class="bi bi-grid-fill me-2"></i>Aplicaciones
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link px-3" style="background: none; border: none;" href="/proyecto01/permisos">
+                            <i class="bi bi-shield-lock-fill me-2"></i>Permisos
+                        </a>
+                    </li>
+                      <li class="nav-item">
+                        <a class="nav-link px-3" style="background: none; border: none;" href="/proyecto01/asignacion">
+                            <i class="bi bi-shield-lock-fill me-2"></i>Asignacion de Permisos
+                        </a>
                     </li>
   
                     <div class="nav-item dropdown " >
