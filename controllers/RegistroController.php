@@ -19,8 +19,6 @@ public static function guardarAPI()
     {
         getHeadersApi();
     
-        
-        //saniticacion de nombre y validaccion con capital
         $_POST['usuario_nom1'] = ucwords(strtolower(trim(htmlspecialchars($_POST['usuario_nom1']))));
         
         $cantidad_nombre = strlen($_POST['usuario_nom1']);
@@ -121,7 +119,38 @@ public static function guardarAPI()
             ]);
             exit;
         }
-        
+
+            // Verificar DPI duplicado
+            $dpiExistente = "SELECT COUNT(*) as total FROM usuario WHERE usuario_dpi = '{$_POST['usuario_dpi']}' AND usuario_situacion = 1";
+            $resultadoDpi = self::fetchArray($dpiExistente);
+
+            if ($resultadoDpi[0]['total'] > 0) {
+                http_response_code(400);
+                echo json_encode([
+                    'codigo' => 2, // Código específico para DPI duplicado
+                    'mensaje' => 'El DPI ingresado ya está registrado en el sistema',
+                    'campo' => 'usuario_dpi',
+                    'tipo' => 'duplicado_dpi'
+                ]);
+                exit;
+            }
+
+            // Verificar correo duplicado
+            $correoExistente = "SELECT COUNT(*) as total FROM usuario WHERE usuario_correo = '{$_POST['usuario_correo']}' AND usuario_situacion = 1";
+            $resultadoCorreo = self::fetchArray($correoExistente);
+
+            if ($resultadoCorreo[0]['total'] > 0) {
+                http_response_code(400);
+                echo json_encode([
+                    'codigo' => 3, // Código específico para correo duplicado
+                    'mensaje' => 'El correo electrónico ingresado ya está registrado en el sistema',
+                    'campo' => 'usuario_correo',
+                    'tipo' => 'duplicado_correo'
+                ]);
+                exit;
+            }
+
+
         // VALIDACIÓN: Confirmar contraseña
         if ($_POST['usuario_contra'] !== $_POST['confirmar_contra']) {
             
@@ -304,6 +333,34 @@ public static function modificarAPI()
         return;
     }
 
+    $dpiExistente = "SELECT COUNT(*) as total FROM usuario WHERE usuario_dpi = '{$_POST['usuario_dpi']}' AND usuario_situacion = 1 AND usuario_id != $id";
+    $resultadoDpi = self::fetchArray($dpiExistente);
+
+    if ($resultadoDpi[0]['total'] > 0) {
+        http_response_code(400);
+        echo json_encode([
+            'codigo' => 2,
+            'mensaje' => 'El DPI ingresado ya está registrado por otro usuario',
+            'campo' => 'usuario_dpi',
+            'tipo' => 'duplicado_dpi'
+        ]);
+        return;
+    }
+
+    $correoExistente = "SELECT COUNT(*) as total FROM usuario WHERE usuario_correo = '{$_POST['usuario_correo']}' AND usuario_situacion = 1 AND usuario_id != $id";
+    $resultadoCorreo = self::fetchArray($correoExistente);
+
+    if ($resultadoCorreo[0]['total'] > 0) {
+        http_response_code(400);
+        echo json_encode([
+            'codigo' => 3,
+            'mensaje' => 'El correo electrónico ingresado ya está registrado por otro usuario',
+            'campo' => 'usuario_correo',
+            'tipo' => 'duplicado_correo'
+        ]);
+        return;
+    }
+
     $fotografia = null;
     if (isset($_FILES['usuario_fotografia']) && $_FILES['usuario_fotografia']['error'] == 0) {
         $file = $_FILES['usuario_fotografia'];
@@ -324,7 +381,6 @@ public static function modificarAPI()
         
         $dpi = $_POST['usuario_dpi'];
         
-        // CREAR DIRECTORIO SI NO EXISTE
         $uploadDir = __DIR__ . "/../../storage/fotografias/";
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0777, true);
@@ -334,42 +390,38 @@ public static function modificarAPI()
         $subido = move_uploaded_file($file['tmp_name'], __DIR__ . "/../../" . $ruta);
         
         if ($subido) {
-            $fotografia = $ruta;  // USAR LA RUTA, NO EL NOMBRE
+            $fotografia = $ruta;
         }
     }
 
     try {
-        // ... verificaciones de duplicados están bien ...
-
         $datosActualizar = [
-            'usuario_nom1' => $_POST['usuario_nom1'],
-            'usuario_nom2' => $_POST['usuario_nom2'],
-            'usuario_ape1' => $_POST['usuario_ape1'],
-            'usuario_ape2' => $_POST['usuario_ape2'],
-            'usuario_tel' => $_POST['usuario_tel'],
-            'usuario_direc' => $_POST['usuario_direc'],
-            'usuario_dpi' => $_POST['usuario_dpi'],
-            'usuario_correo' => $_POST['usuario_correo'],
+            'usuario_nom1' => ucwords(strtolower(trim(htmlspecialchars($_POST['usuario_nom1'])))),
+            'usuario_nom2' => ucwords(strtolower(trim(htmlspecialchars($_POST['usuario_nom2'])))),
+            'usuario_ape1' => ucwords(strtolower(trim(htmlspecialchars($_POST['usuario_ape1'])))),
+            'usuario_ape2' => ucwords(strtolower(trim(htmlspecialchars($_POST['usuario_ape2'])))),
+            'usuario_tel' => filter_var($_POST['usuario_tel'], FILTER_SANITIZE_NUMBER_INT),
+            'usuario_direc' => ucwords(strtolower(trim(htmlspecialchars($_POST['usuario_direc'])))),
+            'usuario_dpi' => filter_var($_POST['usuario_dpi'], FILTER_SANITIZE_NUMBER_INT),
+            'usuario_correo' => filter_var($_POST['usuario_correo'], FILTER_SANITIZE_EMAIL),
             'usuario_fecha_creacion' => $_POST['usuario_fecha_creacion']
         ];
 
-        // CONTRASEÑA
         if (!empty($_POST['usuario_contra'])) {
             $_POST['usuario_contra'] = htmlspecialchars($_POST['usuario_contra']);
-            if (strlen($_POST['usuario_contra']) < 6) {
+            if (strlen($_POST['usuario_contra']) < 8) {
                 http_response_code(400);
                 echo json_encode([
                     'codigo' => 0,
-                    'mensaje' => 'La contraseña debe tener al menos 6 caracteres'
+                    'mensaje' => 'La contraseña debe tener al menos 8 caracteres'
                 ]);
                 return;
             }
             
-            $datosActualizar['usuario_contra'] = password_hash($_POST['usuario_contra'], PASSWORD_BCRYPT);
+            $datosActualizar['usuario_contra'] = password_hash($_POST['usuario_contra'], PASSWORD_DEFAULT);
             $datosActualizar['usuario_fecha_contra'] = date('Y-m-d');
         }
 
-        // FOTOGRAFÍA - AGREGAR SOLO SI SE SUBIÓ
         if ($fotografia) {
             $datosActualizar['usuario_fotografia'] = $fotografia;
         }

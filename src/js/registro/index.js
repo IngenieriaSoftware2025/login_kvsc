@@ -113,29 +113,63 @@ const GuardarUsuario = async (event) => {
     try {
         const respuesta = await fetch(url, config);
         const datos = await respuesta.json();
-        const { codigo, mensaje } = datos;
+        const { codigo, mensaje, campo, tipo } = datos;
 
         if (codigo == 1) {
             await Swal.fire({
                 position: "center",
                 icon: "success",
-                title: "Exito",
+                title: "¡Registro Exitoso!",
                 text: mensaje,
                 showConfirmButton: true,
             });
             limpiarTodo();
-            // BuscarUsuarios(); PARA BUSCAR EN AUTOMATICO
-        } else {
+        } 
+        else if (codigo == 2) {
+            await Swal.fire({
+                position: "center",
+                icon: "warning",
+                title: "DPI Duplicado",
+                text: "El número de DPI que ingresaste ya está registrado en el sistema. Por favor, verifica el número o contacta al administrador.",
+                showConfirmButton: true,
+            });
+            
+            const campoDpi = document.getElementById('usuario_dpi');
+            campoDpi.classList.add('is-invalid');
+            campoDpi.focus();
+        }
+        else if (codigo == 3) {
+            await Swal.fire({
+                position: "center",
+                icon: "warning",
+                title: "Correo Electrónico Duplicado",
+                text: "El correo electrónico que ingresaste ya está registrado en el sistema. Por favor, usa un correo diferente.",
+                showConfirmButton: true,
+            });
+            
+            const campoCorreo = document.getElementById('usuario_correo');
+            campoCorreo.classList.add('is-invalid');
+            campoCorreo.focus();
+        }
+        else {
             await Swal.fire({
                 position: "center",
                 icon: "error",
-                title: "Error",
+                title: "Error en el Registro",
                 text: mensaje,
                 showConfirmButton: true,
             });
         }
+
     } catch (error) {
         console.log(error);
+        await Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Error de Conexión",
+            text: "No se pudo conectar con el servidor. Por favor, intenta de nuevo.",
+            showConfirmButton: true,
+        });
     }
     BtnGuardar.disabled = false;
 }
@@ -237,7 +271,7 @@ const datatable = new DataTable('#TableUsuarios', {
                          data-dpi="${row.usuario_dpi}"  
                          data-correo="${row.usuario_correo}"  
                          data-fecha="${row.usuario_fecha_creacion}"  
-                         <i class='bi bi-pencil-square me-1'></i> Modificar
+                        <i class='bi bi-pencil-square me-1'></i> Modificar 
                      </button>
                      <button class='btn btn-danger eliminar mx-1' 
                          data-id="${data}">
@@ -277,13 +311,22 @@ const limpiarTodo = () => {
     BtnModificar.classList.add('d-none');
     InputUsuarioTel.classList.remove('is-valid', 'is-invalid');
     InputUsuarioDpi.classList.remove('is-valid', 'is-invalid');
+    
+    // Limpiar errores visuales de todos los campos
+    const campos = ['usuario_dpi', 'usuario_correo', 'usuario_nom1', 'usuario_nom2', 'usuario_ape1', 'usuario_ape2'];
+    campos.forEach(campoId => {
+        const campo = document.getElementById(campoId);
+        if (campo) {
+            campo.classList.remove('is-invalid', 'is-valid');
+        }
+    });
 }
 
 const ModificarUsuario = async (event) => {
     event.preventDefault();
     BtnModificar.disabled = true;
 
-    if (!validarFormulario(FormUsuarios, [''])) {
+    if (!validarFormulario(FormUsuarios, ['usuario_id'])) {
         Swal.fire({
             position: "center",
             icon: "info",
@@ -305,32 +348,69 @@ const ModificarUsuario = async (event) => {
     try {
         const respuesta = await fetch(url, config);
         const datos = await respuesta.json();
-        const { codigo, mensaje } = datos;
+        const { codigo, mensaje, campo, tipo } = datos;
 
         if (codigo == 1) {
             await Swal.fire({
                 position: "center",
                 icon: "success",
-                title: "Exito",
+                title: "¡Modificación Exitosa!",
                 text: mensaje,
                 showConfirmButton: true,
             });
             limpiarTodo();
             BuscarUsuarios();
-        } else {
+        } 
+        else if (codigo == 2) {
+            await Swal.fire({
+                position: "center",
+                icon: "warning",
+                title: "DPI Duplicado",
+                text: "El número de DPI que ingresaste ya está registrado por otro usuario. Por favor, verifica el número.",
+                showConfirmButton: true,
+            });
+            
+            const campoDpi = document.getElementById('usuario_dpi');
+            campoDpi.classList.add('is-invalid');
+            campoDpi.focus();
+        }
+        else if (codigo == 3) {
+            
+            await Swal.fire({
+                position: "center",
+                icon: "warning",
+                title: "Correo Electrónico Duplicado",
+                text: "El correo electrónico que ingresaste ya está registrado por otro usuario. Por favor, usa un correo diferente.",
+                showConfirmButton: true,
+            });
+            
+            const campoCorreo = document.getElementById('usuario_correo');
+            campoCorreo.classList.add('is-invalid');
+            campoCorreo.focus();
+        }
+        else {
             await Swal.fire({
                 position: "center",
                 icon: "error",
-                title: "Error",
+                title: "Error en la Modificación",
                 text: mensaje,
                 showConfirmButton: true,
             });
         }
+
     } catch (error) {
         console.log(error);
+        await Swal.fire({
+            position: "center",
+            icon: "error",
+            title: "Error de Conexión",
+            text: "No se pudo conectar con el servidor. Por favor, intenta de nuevo.",
+            showConfirmButton: true,
+        });
     }
     BtnModificar.disabled = false;
 }
+
 
 const EliminarUsuarios = async (e) => {
     const idUsuario = e.currentTarget.dataset.id;
@@ -348,7 +428,7 @@ const EliminarUsuarios = async (e) => {
     });
 
     if (AlertaConfirmarEliminar.isConfirmed) {
-        const url = `/proyecto01/registro/eliminar?id=${idUsuario}`;
+        const url = `/proyecto01/registro/eliminarAPI?id=${idUsuario}`;
         const config = {
             method: 'GET'
         }
@@ -362,7 +442,7 @@ const EliminarUsuarios = async (e) => {
                 await Swal.fire({
                     position: "center",
                     icon: "success",
-                    title: "Exito",
+                    title: "¡Eliminación Exitosa!",
                     text: mensaje,
                     showConfirmButton: true,
                 });
@@ -371,13 +451,20 @@ const EliminarUsuarios = async (e) => {
                 await Swal.fire({
                     position: "center",
                     icon: "error",
-                    title: "Error",
+                    title: "Error al Eliminar",
                     text: mensaje,
                     showConfirmButton: true,
                 });
             }
         } catch (error) {
             console.log(error);
+            await Swal.fire({
+                position: "center",
+                icon: "error",
+                title: "Error de Conexión",
+                text: "No se pudo conectar con el servidor para eliminar el usuario.",
+                showConfirmButton: true,
+            });
         }
     }
 }
@@ -393,3 +480,10 @@ BtnLimpiar.addEventListener('click', limpiarTodo);
 BtnModificar.addEventListener('click', ModificarUsuario);
 InputConfirmarContra.addEventListener('change', ValidarContraseñas);
 BtnBuscar.addEventListener('click', BuscarUsuarios);
+document.getElementById('usuario_dpi').addEventListener('input', function() {
+    this.classList.remove('is-invalid');
+});
+
+document.getElementById('usuario_correo').addEventListener('input', function() {
+    this.classList.remove('is-invalid');
+});
