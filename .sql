@@ -72,4 +72,85 @@ FOREIGN KEY (historial_usuario_id) REFERENCES usuario(usuario_id),
 FOREIGN KEY (historial_ruta) REFERENCES rutas(ruta_id)
 );
 
+CREATE TABLE marca (
+    mar_id SERIAL PRIMARY KEY,
+    mar_nombre VARCHAR(50) NOT NULL,
+    mar_descripcion VARCHAR(200),
+    mar_situacion SMALLINT DEFAULT 1
+);
 
+CREATE TABLE cliente (
+    cli_id SERIAL PRIMARY KEY,
+    cli_nombre VARCHAR(100) NOT NULL,
+    cli_apellido VARCHAR(100) NOT NULL,
+    cli_nit INT NOT NULL,
+    cli_telefono INT NOT NULL,
+    cli_direccion VARCHAR(200),
+    cli_situacion SMALLINT DEFAULT 1
+);
+
+CREATE TABLE inventario (
+    inv_id SERIAL PRIMARY KEY,
+    inv_modelo VARCHAR(100) NOT NULL,
+    inv_marca_id INT NOT NULL,
+    inv_precio_compra DECIMAL(10,2) NOT NULL,
+    inv_precio_venta DECIMAL(10,2) NOT NULL,
+    inv_stock INT DEFAULT 0,
+    inv_descripcion VARCHAR(250),
+    inv_situacion SMALLINT DEFAULT 1,
+    FOREIGN KEY (inv_marca_id) REFERENCES marca(mar_id)
+);
+
+CREATE TABLE venta (
+    ven_id SERIAL PRIMARY KEY,
+    ven_cliente_id INT NOT NULL,
+    ven_inventario_id INT NOT NULL,
+    ven_cantidad INT NOT NULL,
+    ven_precio_unitario DECIMAL(10,2) NOT NULL,
+    ven_total DECIMAL(10,2) NOT NULL,
+    ven_fecha DATETIME YEAR TO SECOND,
+    ven_observaciones VARCHAR(250),
+    ven_situacion SMALLINT DEFAULT 1,
+    FOREIGN KEY (ven_cliente_id) REFERENCES cliente(cli_id),
+    FOREIGN KEY (ven_inventario_id) REFERENCES inventario(inv_id)
+);
+
+CREATE TABLE reparacion (
+    rep_id SERIAL PRIMARY KEY,
+    rep_cliente_id INT NOT NULL,
+    rep_equipo VARCHAR(100) NOT NULL,
+    rep_marca VARCHAR(50) NOT NULL,
+    rep_falla VARCHAR(250) NOT NULL,
+    rep_diagnostico VARCHAR(250),
+    rep_costo DECIMAL(10,2),
+    rep_fecha_ingreso DATETIME YEAR TO SECOND,
+    rep_fecha_entrega DATE,
+    rep_estado VARCHAR(20) DEFAULT 'RECIBIDO',
+    rep_observaciones VARCHAR(250),
+    rep_situacion SMALLINT DEFAULT 1,
+    FOREIGN KEY (rep_cliente_id) REFERENCES cliente(cli_id)
+);
+
+CREATE TABLE historial_venta (
+    his_id SERIAL PRIMARY KEY,
+    his_venta_id INT NOT NULL,
+    his_fecha DATETIME YEAR TO SECOND,
+    his_cliente VARCHAR(200) NOT NULL,
+    his_producto VARCHAR(200) NOT NULL,
+    his_cantidad INT NOT NULL,
+    his_total DECIMAL(10,2) NOT NULL,
+    his_tipo VARCHAR(20) DEFAULT 'VENTA',
+    his_situacion SMALLINT DEFAULT 1,
+    FOREIGN KEY (his_venta_id) REFERENCES venta(ven_id)
+);
+
+INSERT INTO marca (mar_nombre, mar_descripcion) VALUES 
+('Samsung', 'Marca coreana líder en tecnología');
+INSERT INTO marca (mar_nombre, mar_descripcion) VALUES 
+('Apple', 'Marca americana premium');
+INSERT INTO marca (mar_nombre, mar_descripcion) VALUES 
+('Xiaomi', 'Marca china con excelente relación calidad-precio');
+INSERT INTO marca (mar_nombre, mar_descripcion) VALUES 
+('Huawei', 'Marca china especializada en telecomunicaciones');
+INSERT INTO marca (mar_nombre, mar_descripcion) VALUES 
+('Motorola', 'Marca americana clásica');

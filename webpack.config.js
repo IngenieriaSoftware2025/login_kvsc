@@ -10,6 +10,12 @@ module.exports = {
     'js/aplicacion/index' : './src/js/aplicacion/index.js',
     'js/permisos/index' : './src/js/permisos/index.js',
     'js/asignacion/index' : './src/js/asignacion/index.js',
+    'js/marca/index' : './src/js/marca/index.js',
+    'js/cliente/index' : './src/js/cliente/index.js',
+    'js/inventario/index' : './src/js/inventario/index.js',
+    'js/venta/index' : './src/js/venta/index.js',
+    'js/reparacion/index' : './src/js/reparacion/index.js',
+    'js/estadistica/index' : './src/js/estadistica/index.js',
   },
   output: {
     filename: '[name].js',

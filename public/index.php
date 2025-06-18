@@ -7,7 +7,13 @@ use Controllers\LoginController;
 use Controllers\RegistroController;
 use Controllers\AplicacionController;
 use Controllers\PermisosController;
-use Controllers\AsignacionController; // ← FALTABA ESTO
+use Controllers\AsignacionController; 
+use Controllers\MarcaController; 
+use Controllers\ClienteController;
+use Controllers\InventarioController;
+use Controllers\VentaController;
+use Controllers\ReparacionController;
+use Controllers\EstadisticaController;
 
 $router = new Router();
 $router->setBaseURL('/' . $_ENV['APP_NAME']);
@@ -53,6 +59,52 @@ $router->get('/asignacion/eliminar', [AsignacionController::class, 'EliminarAPI'
 $router->get('/asignacion/buscarUsuariosAPI', [AsignacionController::class, 'buscarUsuariosAPI']);
 $router->get('/asignacion/buscarAplicacionesAPI', [AsignacionController::class, 'buscarAplicacionesAPI']);
 $router->get('/asignacion/buscarPermisosAPI', [AsignacionController::class, 'buscarPermisosAPI']);
+
+//Ruta para marcas
+$router->get('/marca', [MarcaController::class, 'renderizarPagina']);
+$router->post('/marca/guardarAPI', [MarcaController::class, 'guardarAPI']);
+$router->get('/marca/buscarAPI', [MarcaController::class, 'buscarAPI']);
+$router->post('/marca/modificarAPI', [MarcaController::class, 'modificarAPI']);
+$router->get('/marca/eliminarAPI', [MarcaController::class, 'EliminarAPI']);
+
+//Rutas para clientes
+$router->get('/cliente', [ClienteController::class, 'renderizarPagina']);
+$router->post('/cliente/guardarAPI', [ClienteController::class, 'guardarAPI']);
+$router->get('/cliente/buscarAPI', [ClienteController::class, 'buscarAPI']);
+$router->post('/cliente/modificarAPI', [ClienteController::class, 'modificarAPI']);
+$router->get('/cliente/eliminarAPI', [ClienteController::class, 'EliminarAPI']);
+
+// Rutas para inventarios de celulares
+$router->get('/inventario', [InventarioController::class, 'renderizarPagina']);
+$router->post('/inventario/guardarAPI', [InventarioController::class, 'guardarAPI']);
+$router->get('/inventario/buscarAPI', [InventarioController::class, 'buscarAPI']);
+$router->get('/inventario/buscarMarcasAPI', [InventarioController::class, 'buscarMarcasAPI']);
+$router->post('/inventario/modificarAPI', [InventarioController::class, 'modificarAPI']);
+$router->get('/inventario/eliminarAPI', [InventarioController::class, 'EliminarAPI']);
+
+//Rutas para ventas
+$router->get('/venta', [VentaController::class, 'renderizarPagina']);
+$router->post('/venta/guardarAPI', [VentaController::class, 'guardarAPI']);
+$router->get('/venta/buscarAPI', [VentaController::class, 'buscarAPI']);
+$router->get('/venta/buscarClientesAPI', [VentaController::class, 'buscarClientesAPI']);
+$router->get('/venta/buscarProductosAPI', [VentaController::class, 'buscarProductosAPI']);
+$router->post('/venta/modificarAPI', [VentaController::class, 'modificarAPI']);
+$router->get('/venta/eliminarAPI', [VentaController::class, 'EliminarAPI']);
+
+//Rutas para reparaciones 
+$router->get('/reparacion', [ReparacionController::class, 'renderizarPagina']);
+$router->post('/reparacion/guardarAPI', [ReparacionController::class, 'guardarAPI']);
+$router->get('/reparacion/buscarAPI', [ReparacionController::class, 'buscarAPI']);
+$router->get('/reparacion/buscarClientesAPI', [ReparacionController::class, 'buscarClientesAPI']);
+$router->post('/reparacion/modificarAPI', [ReparacionController::class, 'modificarAPI']);
+$router->get('/reparacion/eliminarAPI', [ReparacionController::class, 'EliminarAPI']);
+
+//Rutas para estadisticas
+$router->get('/estadistica', [EstadisticaController::class, 'renderizarPagina']);
+$router->get('/estadistica/buscarAPI', [EstadisticaController::class, 'buscarAPI']);
+$router->get('/estadistica/clientesTopAPI', [EstadisticaController::class, 'clientesTopAPI']);
+$router->get('/estadistica/ventasPorMesAPI', [EstadisticaController::class, 'ventasPorMesAPI']);
+$router->get('/estadistica/reparacionesPorEstadoAPI', [EstadisticaController::class, 'reparacionesPorEstadoAPI']);
 
 // Comprueba y valida las rutas, que existan y les asigna las funciones del Controlador
 $router->comprobarRutas();
